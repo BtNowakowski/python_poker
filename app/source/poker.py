@@ -1,5 +1,8 @@
 from random import shuffle as random_shuffle
+import time
+from source.console_interface import ConsoleInterface
 from source.card import Card
+from source.player import Player
 from collections import Counter
 
 
@@ -10,8 +13,6 @@ class Poker:
             for i in "23456789TJQKA"
             for s in ["Spade", "Heart", "Diamond", "Club"]
         ]
-        self.player_money = 1000
-        self.computer_money = 1000
         self.points_dict = {
             "Royal Flush": 10,
             "Straight Flush": 9,
@@ -30,11 +31,13 @@ class Poker:
         random_shuffle(self.cards)
 
     def deal(self, number_of_cards: int = 2) -> list[Card]:
+        self.shuffle_deck()
         deck = self.cards[:number_of_cards]
         del self.cards[:number_of_cards]
         return [Card(card[1], card[0]) for card in deck]
 
-    def deal_table(self, number_of_cards: int = 5) -> list[Card]:
+    def deal_table(self, number_of_cards: int = 3) -> list[Card]:
+        self.shuffle_deck()
         deck = self.cards[:number_of_cards]
         del self.cards[:number_of_cards]
         return [Card(card[1], card[0]) for card in deck]
@@ -111,87 +114,103 @@ class Poker:
                 best_cards(max(unique_values)),
             )
 
-    def place_bet(self, amount: int) -> int | bool:
-        if amount > self.player_money:
-            # raise ValueError("You don't have enough money")
-            return False
-        if amount > self.computer_money:
-            # raise ValueError("The computer doesn't have enough money")
-            return False
-        self.player_money -= amount
-        self.table_money += amount
-        return amount
-
-    def computer_bet(self, amount: int) -> int | bool:
-        if amount > self.computer_money:
-            # raise ValueError("The computer doesn't have enough money")
-            return False
-        if amount > self.player_money:
-            # raise ValueError("Player doesn't have enough money")
-            return False
-        self.computer_money -= amount
-        self.table_money += amount
-        return amount
+    def clear_table(self, *players: Player):
+        self.cards = [
+            [i, s]
+            for i in "23456789TJQKA"
+            for s in ["Spade", "Heart", "Diamond", "Club"]
+        ]
+        self.table_money = 0
+        for player in players:
+            player.cards = []
+            player.current_bet = 0
 
     def main_loop(self):
-        self.shuffle_deck()
+        player = Player(self)
+        computer = Player(self)
+        interface = ConsoleInterface()
         while True:
-            player_cards = self.deal()
-            computer_cards = self.deal()
+            if player.money <= 0:
+                print("You lost all your money!")
+                break
+            elif computer.money <= 0:
+                print("You won all the money!")
+                break
+            player.cards = self.deal()
+            computer.cards = self.deal()
             table_cards = self.deal_table()
+            while len(table_cards) <= 5:
+                self.shuffle_deck()
+                interface.clear()
+                player.reset()
+                print("Table cards: ", end="")
+                interface.show_cards(table_cards)
 
-            bet = self.place_bet(100)
-            computer_bet = self.computer_bet(100)
+                print("\nYour cards: ", end="")
+                interface.show_cards(player.cards)
 
-            player_hand, player_points, player_best_card = self.calculate_hand(
-                player_cards + table_cards
-            )
-            computer_hand, computer_points, computer_best_card = self.calculate_hand(
-                computer_cards + table_cards
-            )
-            if player_points > computer_points or (
-                player_points == computer_points
-                and player_best_card[0].value > computer_best_card[0].value
+                print(f"\nYour money: {player.money}")
+                print(f"\nTable money: {self.table_money}")
+
+                print(f"Player bet: {player.current_bet}")
+                print(f"Computer bet: {computer.current_bet}")
+
+                continue_playing = interface.ask_continue()
+
+                if continue_playing is not None and not continue_playing:
+                    player.fold()
+                    break
+                elif continue_playing is None:
+                    player.pass_q()
+                    print("You passed!")
+
+                if not player.passed:
+                    bet = interface.ask_bet()
+                    player.place_bet(bet)
+
+                    computer.place_bet(100)
+
+                table_cards += self.deal_table(1)
+
+            if (
+                not player.folded
+                and not computer.folded
+                and not (player.passed and self.table_money == 0)
             ):
-                print(f"Player wins! {player_hand}")
-                self.player_money += self.table_money
-                self.table_money = 0
-            elif player_points < computer_points or (
-                computer_points == player_points
-                and computer_best_card[0].value > player_best_card[0].value
-            ):
-                print(f"Computer wins! {computer_hand}")
-                self.computer_money += self.table_money
-                self.table_money = 0
+                player_hand, player_points, player_best_card = self.calculate_hand(
+                    player.cards + table_cards
+                )
+                (
+                    computer_hand,
+                    computer_points,
+                    computer_best_card,
+                ) = self.calculate_hand(computer.cards + table_cards)
+
+                if player_points > computer_points or (
+                    player_points == computer_points
+                    and player_best_card[0].value > computer_best_card[0].value
+                ):
+                    print(f"Player wins! {player_hand}")
+                    player.money += self.table_money
+                    time.sleep(2)
+                elif player_points < computer_points or (
+                    computer_points == player_points
+                    and computer_best_card[0].value > player_best_card[0].value
+                ):
+                    print(f"Computer wins! {computer_hand}")
+                    computer.money += self.table_money
+                    time.sleep(2)
+                else:
+                    print(f"Draw! - Both players had {player_hand}")
+                    player.money += player.current_bet
+                    computer.money += computer.current_bet
+                    time.sleep(2)
+            elif computer.folded:
+                print("Computer folded!")
+                player.money += self.table_money
+            elif player.folded:
+                print("Player folded!")
+                computer.money += self.table_money
             else:
-                print(f"Draw! - Both players had {player_hand}")
-                self.player_money += bet
-                self.computer_money += computer_bet
-                self.table_money = 0
-            break
-
-        print("Player cards:")
-        for card in player_cards:
-            print(card.shape, card.index)
-        print()
-        print("Computer cards:")
-        for card in computer_cards:
-            print(card.shape, card.index)
-        print()
-        print("Table cards:")
-        for card in table_cards:
-            print(card.shape, card.index)
-        print()
-
-        print(
-            f"Player Points: {player_points}, Hand: {player_hand}, Best Card: {player_best_card[0].index} {player_best_card[0].shape}"
-        )
-
-        print(
-            f"Computer Points: {computer_points}, Hand: {computer_hand}, Best Card: {computer_best_card[0].index} {computer_best_card[0].shape}"
-        )
-
-        print()
-        print(self.player_money)
-        print(self.computer_money)
-        print(self.table_money)
+                print("Both players passed!")
+            self.clear_table(player, computer)

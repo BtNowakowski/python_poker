@@ -52,33 +52,3 @@ class TestPoker:
             and best_card[0].index == "A"
             and best_card[1].shape == "Spade"
         )
-
-    def test_valid_place_bet(self, poker):
-        poker.player_money = 1000
-        poker.computer_money = 1000
-        poker.table_money = 0
-        poker.place_bet(100)
-        assert poker.player_money == 900 and poker.table_money == 100
-        poker.computer_bet(100)
-        assert poker.computer_money == 900 and poker.table_money == 200
-
-    def test_invalid_place_bet(self, poker):
-        poker.player_money = 1000
-        poker.computer_money = 50
-        poker.table_money = 0
-        poker.place_bet(100)
-        assert poker.place_bet(100) is False
-
-    def test_valid_computer_bet(self, poker):
-        poker.player_money = 1000
-        poker.computer_money = 1000
-        poker.table_money = 0
-        poker.computer_bet(100)
-        assert poker.computer_money == 900 and poker.table_money == 100
-
-    def test_invalid_computer_bet(self, poker):
-        poker.player_money = 50
-        poker.computer_money = 1000
-        poker.table_money = 0
-        poker.computer_bet(100)
-        assert poker.computer_bet(100) is False
