@@ -26,7 +26,7 @@ class Poker:
         }
         self.table_money = 0
 
-    def shuffle_deck(self):
+    def shuffle_deck(self) -> None:
         random_shuffle(self.cards)
 
     def deal(self, number_of_cards: int = 2) -> list[Card]:
@@ -111,7 +111,7 @@ class Poker:
                 best_cards(max(unique_values)),
             )
 
-    def place_bet(self, amount: int):
+    def place_bet(self, amount: int) -> int | bool:
         if amount > self.player_money:
             # raise ValueError("You don't have enough money")
             return False
@@ -122,7 +122,7 @@ class Poker:
         self.table_money += amount
         return amount
 
-    def computer_bet(self, amount: int):
+    def computer_bet(self, amount: int) -> int | bool:
         if amount > self.computer_money:
             # raise ValueError("The computer doesn't have enough money")
             return False

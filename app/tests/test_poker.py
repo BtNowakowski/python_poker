@@ -5,7 +5,7 @@ from source.card import Card
 
 class TestPoker:
     @pytest.fixture(autouse=True, scope="function")
-    def poker(tmpdir):
+    def poker(tmp_path):
         # Setup: fill with any logic you want
         poker = Poker()
 
