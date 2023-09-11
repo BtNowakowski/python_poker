@@ -3,13 +3,8 @@
 Poker implementation in Python, with a simple command line interface.
 Might be working on a GUI interface in the future.  
 
-## Screenshots
+## Screenshots and gameplay  
 
-<img width="560" alt="Zrzut ekranu" src="https://github.com/BtNowakowski/python_poker/assets/107316656/81b2a2f0-c9a7-40bc-8fa1-532cb68cfe23">   
+<img width="560" alt="Zrzut ekranu 2023-09-11 o 12 30 20" src="https://github.com/BtNowakowski/python_poker/assets/107316656/ba275396-e64c-4fa2-82c8-42b82d63fe79">  
 
-   
-
-
-
-https://github.com/BtNowakowski/python_poker/assets/107316656/c9185a36-a128-4491-bfd5-dbbd5e0bcb3c
-
+https://github.com/BtNowakowski/python_poker/assets/107316656/988d3619-a384-4407-9f1d-6c2d76018793  

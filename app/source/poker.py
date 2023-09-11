@@ -202,14 +202,18 @@ class Poker:
                 )
                 if not player.all_in:
                     # ask to bet, fold or pass
-                    if not (computer.current_bet > player.money) and not (
+                    if (
                         computer.current_bet > player.current_bet
+                        or computer.current_bet >= player.money
+                    ):
+                        continue_playing = interface.ask_bet_fold()
+                    elif (
+                        computer.current_bet < player.money
+                        or computer.current_bet <= player.current_bet
                     ):
                         continue_playing = interface.ask_continue()
-                    elif computer.current_bet > player.current_bet:
-                        continue_playing = interface.ask_bet_fold()
                     else:
-                        player.pass_q()
+                        continue_playing = None
 
                     # act accordingly to the answer
                     if continue_playing is None:
