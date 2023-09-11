@@ -13,7 +13,7 @@ class TestPlayer:
         yield player, poker  # this is where the testing happens
 
         # Teardown : fill with any logic you want
-        del player
+        del player, poker
 
     def test_place_bet_valid(self, objects):
         player, poker = objects
@@ -28,6 +28,11 @@ class TestPlayer:
         assert (
             bet_placed is not None and player.money == 1000 and poker.table_money == 0
         )
+
+    def test_place_bet_all_in(self, objects):
+        player, poker = objects
+        player.place_bet(player.money)
+        assert player.money == 0 and poker.table_money == 1000 and player.all_in
 
     def test_fold(self, objects):
         player, poker = objects

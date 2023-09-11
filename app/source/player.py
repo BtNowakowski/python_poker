@@ -6,6 +6,7 @@ class Player:
         self.current_bet = 0
         self.folded = False
         self.passed = False
+        self.all_in = False
 
     def place_bet(self, bet) -> bool | None:
         if bet > self.money:
@@ -13,6 +14,9 @@ class Player:
         self.money -= bet
         self.current_bet += bet
         self.game.table_money += bet
+
+        if self.money == 0:
+            self.all_in = True
 
     def fold(self):
         self.folded = True

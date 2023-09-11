@@ -3,6 +3,7 @@ import time
 from source.console_interface import ConsoleInterface
 from source.card import Card
 from source.player import Player
+from source.computer import Computer
 from collections import Counter
 
 
@@ -11,7 +12,7 @@ class Poker:
         self.cards = [
             [i, s]
             for i in "23456789TJQKA"
-            for s in ["Spade", "Heart", "Diamond", "Club"]
+            for s in ["Spades", "Hearts", "Diamonds", "Clubs"]
         ]
         self.points_dict = {
             "Royal Flush": 10,
@@ -175,7 +176,7 @@ class Poker:
 
     def main_loop(self):
         player = Player(self)
-        computer = Player(self)
+        computer = Computer(self)
         interface = ConsoleInterface()
         while True:
             if player.money <= 0:
@@ -184,53 +185,51 @@ class Poker:
             elif computer.money <= 0:
                 print("You won all the money!")
                 break
+            player.all_in = False
+            computer.all_in = False
             player.cards = self.deal()
             computer.cards = self.deal()
             table_cards = self.deal_table()
+
             while len(table_cards) <= 5:
                 self.shuffle_deck()
                 interface.clear()
                 player.reset()
-                print("Table cards: ", end="")
-                interface.show_cards(table_cards)
+                computer.reset()
 
-                print("\nYour cards: ", end="")
-                interface.show_cards(player.cards)
+                interface.display_all_info(
+                    player, computer, self.table_money, table_cards
+                )
+                if not player.all_in:
+                    # ask to bet, fold or pass
+                    if not (computer.current_bet > player.money) and not (
+                        computer.current_bet > player.current_bet
+                    ):
+                        continue_playing = interface.ask_continue()
+                    elif computer.current_bet > player.current_bet:
+                        continue_playing = interface.ask_bet_fold()
+                    else:
+                        player.pass_q()
 
-                print(f"\nYour money: {player.money}")
-                print(f"\nTable money: {self.table_money}")
+                    # act accordingly to the answer
+                    if continue_playing is None:
+                        player.pass_q()
+                    elif not continue_playing:
+                        player.fold()
+                        break
+                    elif continue_playing:
+                        bet = interface.ask_bet(
+                            player.current_bet, computer.current_bet
+                        )
+                        player.place_bet(bet)
 
-                print(f"Player bet: {player.current_bet}")
-                print(f"Computer bet: {computer.current_bet}")
-
-                continue_playing = interface.ask_continue()
-
-                if continue_playing is not None and not continue_playing:
-                    player.fold()
-                    break
-                elif continue_playing is None:
-                    player.pass_q()
-                    print("You passed!")
-
-                if not player.passed:
-                    bet = interface.ask_bet()
-                    player.place_bet(bet)
-
-                computer.place_bet(100)
+                computer.make_decision(player.current_bet, player.passed, player.all_in)
 
                 table_cards += self.deal_table(1)
 
             did_win, hand = self.did_player_win(player, computer, table_cards)
 
-            if did_win is None:
-                print(f"Draw! Both players had {hand}")
-            if did_win:
-                print(f"Player wins! He had {hand}")
-            else:
-                print(f"Computer wins! It had {hand}")
+            interface.show_winner(did_win, hand)
 
             time.sleep(2)
-            print(len(self.cards))
             self.clear_table(player, computer)
-            print(len(self.cards))
-            time.sleep(2)
