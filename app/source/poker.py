@@ -114,7 +114,7 @@ class Poker:
                 best_cards(max(unique_values)),
             )
 
-    def clear_table(self, *players: Player):
+    def clear_table(self, *players: Player) -> None:
         self.cards = [
             [i, s]
             for i in "23456789TJQKA"

@@ -18,7 +18,6 @@ class TestPoker:
         CARDS_TO_DEAL = 2
 
         len_deck = len(poker.cards)
-        poker.shuffle_deck()
         player_cards = poker.deal(CARDS_TO_DEAL)
         assert (
             len(player_cards) == CARDS_TO_DEAL
@@ -29,7 +28,6 @@ class TestPoker:
         CARDS_TO_DEAL = 5
 
         len_deck = len(poker.cards)
-        poker.shuffle_deck()
         table_cards = poker.deal_table(CARDS_TO_DEAL)
         assert (
             len(table_cards) == CARDS_TO_DEAL

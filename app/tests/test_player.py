@@ -28,3 +28,18 @@ class TestPlayer:
         assert (
             bet_placed is not None and player.money == 1000 and poker.table_money == 0
         )
+
+    def test_fold(self, objects):
+        player, poker = objects
+        player.fold()
+        assert player.folded and player.cards == []
+
+    def test_pass(self, objects):
+        player, poker = objects
+        player.pass_q()
+        assert player.passed
+
+    def test_reset(self, objects):
+        player, poker = objects
+        player.reset()
+        assert not player.folded and not player.passed
