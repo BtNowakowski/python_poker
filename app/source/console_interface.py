@@ -17,8 +17,8 @@ class ConsoleInterface:
             try:
                 int_bet = int(input("\nPlace your bet: "))
                 player_bet += int_bet
-                # we dont want to make player be more than computer, he might like to put the same amount
-                if player_bet == player_bet:
+                # we dont want to make player bet more than computer, he might like to put the same amount
+                if computer_bet == player_bet:
                     break
             except ValueError:
                 print("Invalid input!")
@@ -89,7 +89,7 @@ class ConsoleInterface:
         if computer.passed:
             print("Computer passed!")
 
-    def show_winner(did_player_win, hand):
+    def show_winner(self, did_player_win, hand):
         if did_player_win is None:
             print(f"\nDraw! Both players had {hand}")
         if did_player_win:
