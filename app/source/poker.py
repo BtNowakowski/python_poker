@@ -129,24 +129,30 @@ class Poker:
     def did_player_win(
         self, player: Player, computer: Player, table_cards: list[Card]
     ) -> tuple[bool, str] | tuple[None, str]:
-        if (
-            not player.folded
-            and not computer.folded
-            and not (player.passed and self.table_money == 0)
-        ):
-            if player.current_bet == 0:
-                computer.money += self.table_money
-                return (False, "Fold")
+        if not player.folded and not computer.folded:
             player_hand, player_points, player_best_card = self.calculate_hand(
                 player.cards + table_cards
             )
-            (
-                computer_hand,
-                computer_points,
-                computer_best_card,
-            ) = self.calculate_hand(computer.cards + table_cards)
 
-            if player_points > computer_points or (
+            (computer_hand, computer_points, computer_best_card) = self.calculate_hand(
+                computer.cards + table_cards
+            )
+
+            if player.passed and player.current_bet == 0 and computer.current_bet != 0:
+                computer.money += self.table_money
+                return (False, player_hand)
+            elif (
+                computer.passed
+                and player.current_bet != 0
+                and computer.current_bet == 0
+            ):
+                player.money += self.table_money
+                return (True, computer_hand)
+            elif player.passed and computer.passed:
+                player.money += player.current_bet
+                computer.money += computer.current_bet
+                return (None, player_hand)
+            elif player_points > computer_points or (
                 player_points == computer_points
                 and player_best_card[0].value > computer_best_card[0].value
             ):
@@ -163,15 +169,13 @@ class Poker:
                 computer.money += computer.current_bet
                 return (None, player_hand)
         elif computer.folded:
-            print("Computer folded!")
             player.money += self.table_money
             return (True, "Fold")
         elif player.folded:
-            print("Player folded!")
             computer.money += self.table_money
             return (False, "Fold")
+
         else:
-            print("Both players passed!")
             return (None, "Pass")
 
     def main_loop(self):
@@ -187,12 +191,17 @@ class Poker:
                 break
             player.all_in = False
             computer.all_in = False
+
             player.cards = self.deal()
             computer.cards = self.deal()
             table_cards = self.deal_table()
 
+            player.reset()
+            computer.reset()
+
             while len(table_cards) <= 5:
                 self.shuffle_deck()
+
                 interface.clear()
                 player.reset()
                 computer.reset()
@@ -202,38 +211,34 @@ class Poker:
                 )
                 if not player.all_in:
                     # ask to bet, fold or pass
-                    if (
-                        computer.current_bet > player.current_bet
-                        or computer.current_bet >= player.money
-                    ):
+                    if computer.current_bet > player.current_bet:
                         continue_playing = interface.ask_bet_fold()
                     elif (
                         computer.current_bet < player.money
                         or computer.current_bet <= player.current_bet
                     ):
                         continue_playing = interface.ask_continue()
-                    else:
-                        continue_playing = None
 
-                    # act accordingly to the answer
                     if continue_playing is None:
                         player.pass_q()
-                    elif not continue_playing:
-                        player.fold()
-                        break
-                    elif continue_playing:
+                    # act accordingly to the answer
+                    if continue_playing and not player.passed:
                         bet = interface.ask_bet(
                             player.current_bet, computer.current_bet
                         )
                         player.place_bet(bet)
+                    elif not continue_playing and not player.passed:
+                        player.fold()
+                        break
 
-                computer.make_decision(player.current_bet, player.passed, player.all_in)
+                if not computer.all_in:
+                    computer.make_decision(
+                        player.current_bet, player.passed, player.all_in
+                    )
 
                 table_cards += self.deal_table(1)
-
             did_win, hand = self.did_player_win(player, computer, table_cards)
 
             interface.show_winner(did_win, hand)
-
             time.sleep(2)
             self.clear_table(player, computer)

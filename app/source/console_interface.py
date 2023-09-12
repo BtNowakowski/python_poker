@@ -10,8 +10,6 @@ class ConsoleInterface:
 
     def ask_bet(self, player_bet, computer_bet):
         int_bet = 0
-        if computer_bet < player_bet:
-            return 0
         # written in a way to allow player bet at the game start when players bets are equal
         while computer_bet > player_bet or computer_bet == player_bet:
             try:
@@ -81,18 +79,31 @@ class ConsoleInterface:
         print(f"\nYour money: {player.money}")
         print(f"\nTable money: {table_money}")
 
-        print(f"Player bet: {player.current_bet}")
-        print(f"Computer bet: {computer.current_bet}")
-
         if player.passed:
-            print("You passed!")
+            print(f"Player bet: {player.current_bet} - passed!")
+        elif player.folded:
+            print("You folded!")
+        elif player.all_in:
+            print(f"Player bet: {player.current_bet} - all in!")
+        else:
+            print(f"Player bet: {player.current_bet}")
+
         if computer.passed:
-            print("Computer passed!")
+            print(f"Computer bet: {computer.current_bet} - passed!")
+        elif computer.folded:
+            print("Computer folded!")
+        elif computer.all_in:
+            print(f"Computer bet: {computer.current_bet} - all in!")
+        else:
+            print(f"Computer bet: {computer.current_bet}")
 
     def show_winner(self, did_player_win, hand):
         if did_player_win is None:
-            print(f"\nDraw! Both players had {hand}")
-        if did_player_win:
+            if hand == "Pass":
+                print("\nDraw! Both players passed!")
+            else:
+                print(f"\nDraw! Both players had {hand}")
+        elif did_player_win:
             if hand == "Fold":
                 print("\nPlayer wins! Computer folded!")
             else:

@@ -11,7 +11,9 @@ class Computer(Player):
         if is_player_all_in:
             if player_bet > self.current_bet and self.money >= player_bet:
                 self.place_bet(player_bet)
-            elif player_bet < self.current_bet:
+            elif player_bet < self.current_bet or (
+                player_bet == self.current_bet and self.current_bet != 0
+            ):
                 self.pass_q()
             else:
                 self.place_bet(self.money)
