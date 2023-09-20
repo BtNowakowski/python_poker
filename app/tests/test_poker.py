@@ -180,7 +180,9 @@ class TestPoker:
             Card("Spade", "A"),
         ]
         player.place_bet(BET_AMOUNT)
+
         computer.place_bet(BET_AMOUNT)
+
         player.fold()
 
         assert (
