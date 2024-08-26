@@ -2,7 +2,6 @@ import pytest
 from source.poker import Poker
 from source.player import Player
 from source.card import Card
-from source.computer import Computer
 
 
 class TestPoker:
@@ -207,21 +206,21 @@ class TestPoker:
             Card("Hearts", "1"),
             Card("Hearts", "2"),
             Card("Hearts", "3"),
-            Card("Spade", "5"),
-            Card("Spade", "A"),
+            Card("Spade", "9"),
+            Card("Spade", "4"),
         ]
         player.place_bet(BET_AMOUNT)
 
         computer.place_bet(BET_AMOUNT)
 
 
-        poker_result = poker.did_player_win(player, computer, table_cards)
-
+        did_player_win, hand = poker.did_player_win(player, computer, table_cards)
+        
         assert (
-            poker_result[0] == None
-            and poker_result[1] == "High Card"
-            and player.money == player_initial_money 
-            and computer.money == computer_initial_money 
+            did_player_win == True
+            and hand == "High Card"
+            and player.money == player_initial_money + BET_AMOUNT
+            and computer.money == computer_initial_money - BET_AMOUNT
         )
     def test_pair(self, poker):
         player = Player(poker)
@@ -247,11 +246,11 @@ class TestPoker:
         computer.place_bet(BET_AMOUNT)
 
 
-        poker_result = poker.did_player_win(player, computer, table_cards)
+        did_player_win, hand = poker.did_player_win(player, computer, table_cards)
 
         assert (
-            poker_result[0] == True
-            and poker_result[1] == "Pair"
+            did_player_win == True
+            and hand == "Pair"
             and player.money == player_initial_money + BET_AMOUNT
             and computer.money == computer_initial_money - BET_AMOUNT
         )
@@ -279,11 +278,11 @@ class TestPoker:
         computer.place_bet(BET_AMOUNT)
 
 
-        poker_result = poker.did_player_win(player, computer, table_cards)
+        did_player_win, hand = poker.did_player_win(player, computer, table_cards)
 
         assert (
-            poker_result[0] == True
-            and poker_result[1] == "Two Pair"
+            did_player_win == True
+            and hand == "Two Pair"
             and player.money == player_initial_money + BET_AMOUNT
             and computer.money == computer_initial_money - BET_AMOUNT
         )
@@ -311,11 +310,11 @@ class TestPoker:
         computer.place_bet(BET_AMOUNT)
 
 
-        poker_result = poker.did_player_win(player, computer, table_cards)
+        did_player_win, hand = poker.did_player_win(player, computer, table_cards)
 
         assert (
-            poker_result[0] == True
-            and poker_result[1] == "Three of a Kind"
+            did_player_win== True
+            and hand == "Three of a Kind"
             and player.money == player_initial_money + BET_AMOUNT
             and computer.money == computer_initial_money - BET_AMOUNT
         )
@@ -343,11 +342,11 @@ class TestPoker:
         computer.place_bet(BET_AMOUNT)
 
 
-        poker_result = poker.did_player_win(player, computer, table_cards)
+        did_player_win, hand = poker.did_player_win(player, computer, table_cards)
 
         assert (
-            poker_result[0] == True
-            and poker_result[1] == "Four of a Kind"
+            did_player_win== True
+            and hand == "Four of a Kind"
             and player.money == player_initial_money + BET_AMOUNT
             and computer.money == computer_initial_money - BET_AMOUNT
         )
@@ -375,11 +374,11 @@ class TestPoker:
         computer.place_bet(BET_AMOUNT)
 
 
-        poker_result = poker.did_player_win(player, computer, table_cards)
+        did_player_win, hand = poker.did_player_win(player, computer, table_cards)
 
         assert (
-            poker_result[0] == True
-            and poker_result[1] == "Full House"
+            did_player_win == True
+            and hand== "Full House"
             and player.money == player_initial_money + BET_AMOUNT
             and computer.money == computer_initial_money - BET_AMOUNT
         )
@@ -407,11 +406,11 @@ class TestPoker:
         computer.place_bet(BET_AMOUNT)
 
 
-        poker_result = poker.did_player_win(player, computer, table_cards)
+        did_player_win, hand = poker.did_player_win(player, computer, table_cards)
 
         assert (
-            poker_result[0] == True
-            and poker_result[1] == "Flush"
+            did_player_win == True
+            and hand == "Flush"
             and player.money == player_initial_money + BET_AMOUNT
             and computer.money == computer_initial_money - BET_AMOUNT
         )
@@ -439,11 +438,11 @@ class TestPoker:
         computer.place_bet(BET_AMOUNT)
 
 
-        poker_result = poker.did_player_win(player, computer, table_cards)
+        did_player_win, hand = poker.did_player_win(player, computer, table_cards)
 
         assert (
-            poker_result[0] == True
-            and poker_result[1] == "Straight"
+            did_player_win == True
+            and hand == "Straight"
             and player.money == player_initial_money + BET_AMOUNT
             and computer.money == computer_initial_money - BET_AMOUNT
         )
@@ -471,17 +470,17 @@ class TestPoker:
         computer.place_bet(BET_AMOUNT)
 
 
-        poker_result = poker.did_player_win(player, computer, table_cards)
+        did_player_win, hand = poker.did_player_win(player, computer, table_cards)
 
         assert (
-            poker_result[0] == True
-            and poker_result[1] == "Straight Flush"
+            did_player_win == True
+            and hand == "Straight Flush"
             and player.money == player_initial_money + BET_AMOUNT
             and computer.money == computer_initial_money - BET_AMOUNT
         )
     def test_royalflush(self, poker):
         player = Player(poker)
-        computer = Computer(poker)
+        computer = Player(poker)
 
         player.cards = [Card("Spade", "A"), Card("Hearts", "A")]
         computer.cards = [Card("Hearts", "7"), Card("Hearts", "8")]

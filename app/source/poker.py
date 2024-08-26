@@ -71,7 +71,7 @@ class Poker:
         royal_flush = straight and flush and all(item in unique_values for item in [10,11,12,13,14])
         
         
-        best_cards = lambda x: [card for card in hand if card.value == x]
+        best_cards = lambda x: [card for card in hand if card.value == x] #returns card obj from its points value
 
         if royal_flush:
             return ("Royal Flush", self.points_dict["Royal Flush"], best_cards(14))
@@ -125,7 +125,7 @@ class Poker:
             return (
                 "High Card",
                 self.points_dict["High Card"],
-                best_cards(max(unique_values)),
+                best_cards(sorted(unique_values)[-1])
             )
 
     def clear_table(self, *players: Player) -> None:
