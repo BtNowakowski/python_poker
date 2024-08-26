@@ -1,5 +1,6 @@
 from random import shuffle as random_shuffle
 import time
+from itertools import combinations
 from source.console_interface import ConsoleInterface
 from source.card import Card
 from source.player import Player
@@ -44,20 +45,32 @@ class Poker:
         return [Card(card[1], card[0]) for card in deck]
 
     def calculate_hand(self, hand: list[Card]) -> tuple[str, int, list[Card]]:
-        indexes = [card.index for card in hand]
+        #indexes = [card.index for card in hand]
         values = [card.value for card in hand]
+        shapes = [card.shape for card in hand]
 
         counter = Counter(values)
         most_common_values = counter.most_common()
-
         unique_values = list(set(values))
+        
+        flush = False
+        for combo in combinations(shapes, 5):
+            if len(set(combo)) == 1:
+                flush = True
+        
+        straight = False
+        if len(unique_values) >= 5:
+            sorted_values = sorted(unique_values)
+            if sorted_values[-1] == 14:  # Handle the wheel case (A-2-3-4-5)
+                sorted_values.insert(0,0) # Adding the 0 to the start of the list for the ace
+    
+            for i in range(len(sorted_values) - 4):
+                if sorted_values[i + 4] - sorted_values[i] == 4:
+                    straight = True
 
-        flush = len(set(indexes)) == 1
-
-        straight = unique_values == 5 and max(unique_values) - min(unique_values) == 4
-
-        royal_flush = straight and flush and min(unique_values) == 10
-
+        royal_flush = straight and flush and all(item in unique_values for item in [10,11,12,13,14])
+        
+        
         best_cards = lambda x: [card for card in hand if card.value == x]
 
         if royal_flush:
