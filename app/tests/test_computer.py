@@ -21,12 +21,8 @@ class TestComputer:
         computer_initial_money = computer.money
         table_initial_money = poker.table_money
         PLAYER_BET = 200
-
         computer.make_decision(PLAYER_BET, False, False)
-        assert (
-            computer.money == computer_initial_money - PLAYER_BET
-            and poker.table_money == table_initial_money + PLAYER_BET
-        )
+        assert (table_initial_money + PLAYER_BET <= poker.table_money and computer_initial_money > computer.money)
 
     def test_make_decision__all_in(self, objects):
         computer, poker = objects

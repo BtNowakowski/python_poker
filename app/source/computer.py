@@ -20,8 +20,8 @@ class Computer(Player):
                 self.place_bet(self.money)
                 self.all_in = True
         elif player_bet > self.current_bet and self.money >= player_bet_now:
-            self.place_bet(player_bet)
-        elif self.money <= player_bet and self.money > 0:
+            self.place_bet(player_bet_now + random_choice(self.possible_bets))
+        elif self.money <= player_bet_now and self.money > 0:
             self.place_bet(self.money)
             self.all_in = True
         elif self.money == 0:
