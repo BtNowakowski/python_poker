@@ -30,9 +30,9 @@ class Computer(Player):
         elif player_bet < self.current_bet:
             self.pass_q()
         elif is_player_passing or player_bet == self.current_bet:
-            random_bet = self.money + 1
-            while random_bet > self.money:
+            while True: 
                 random_bet = random_choice(self.possible_bets)
+                if random_bet <= self.money: break
             if random_bet == 0:
                 self.pass_q()
             else:
