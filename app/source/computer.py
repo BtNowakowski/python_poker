@@ -6,6 +6,7 @@ class Computer(Player):
     def __init__(self, poker_game, money=1000):
         super().__init__(poker_game, money)
         self.possible_bets = [0, 100, 200, 300, 400, 500]
+        self.possible_raise = [0, 0, 0, 50, 100, 200]
 
     def make_decision(self, player_bet, is_player_passing, is_player_all_in):
         player_bet_now = player_bet - self.current_bet
@@ -20,7 +21,7 @@ class Computer(Player):
                 self.place_bet(self.money)
                 self.all_in = True
         elif player_bet > self.current_bet and self.money >= player_bet_now:
-            self.place_bet(player_bet_now + random_choice(self.possible_bets))
+            self.place_bet(player_bet_now + random_choice(self.possible_raise))
         elif self.money <= player_bet_now and self.money > 0:
             self.place_bet(self.money)
             self.all_in = True
