@@ -237,7 +237,7 @@ class Poker:
                     # act accordingly to the answer
                     if continue_playing and not player.passed:
                         bet = interface.ask_bet(
-                            player.current_bet, computer.current_bet
+                            player.current_bet, computer.current_bet, player.money
                         )
                         player.place_bet(bet)
                     elif not continue_playing and not player.passed:

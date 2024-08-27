@@ -8,7 +8,7 @@ class ConsoleInterface:
         else:
             os.system("clear")
 
-    def ask_bet(self, player_bet, computer_bet):
+    def ask_bet(self, player_bet, computer_bet, player_money):
         int_bet = 0
         # written in a way to allow player bet at the game start when players bets are equal
         while computer_bet > player_bet or computer_bet == player_bet:
@@ -16,7 +16,7 @@ class ConsoleInterface:
                 int_bet = int(input("\nPlace your bet: "))
                 player_bet += int_bet
                 # we dont want to make player bet more than computer, he might like to put the same amount
-                if computer_bet == player_bet:
+                if computer_bet == player_bet or int_bet == player_money:
                     break
             except ValueError:
                 print("Invalid input!")
